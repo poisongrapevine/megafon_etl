@@ -88,13 +88,34 @@ def aggregation():
             FROM events
             GROUP BY date
             '''
-
-    return pd.read_sql(query, con=con)
+    print('Aggregation ready: \n', pd.read_sql(query, con=con))
+    
+def process_input():
+    print('''Data generated.
+            To see one of the tables, type its name.
+            To see the data aggregated by days (how much of which resource each client spends every day), type \'aggregate\'.''')
+    inp = input()
+    if inp in ['users', 'events', 'rate_plans']:
+        query = f'''
+                SELECT * FROM {inp}
+                '''
+        print(pd.read_sql(query, con=con))
+    if inp == 'aggregate':
+        aggregation()
+    q = input('Press any key to continue.')
+    if q:
+        process_input()
 
 if __name__ == '__main__':
-    
+    print('''This script generates a database with the following tables:
+                - users: info about individual clients;
+                - events: people spending minutes, sms or megabytes
+                - rate_plans: rate plans descriptions
+            
+            A database will be randomly assembled after you enter a path to it:
+            ''')
     db_filename = input('Database filename: ')
     con = sqlite3.connect(db_filename)
     cur = con.cursor()
     generate_data(db_filename)
-    print('Aggregation ready: \n', aggregation())
+    process_input()
